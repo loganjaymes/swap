@@ -48,11 +48,12 @@ int main() {
 	short int buf[buf_size] = {};
 
 	for (int i = 0; i < buf_size; ++i) {
-		buf[i] = (short int)(1000 * sin((2 * M_PI * 440.0 * i) / sample_rate));
+		buf[i] += (short int)(1000 * sin((2 * M_PI * 440.0 * i) / sample_rate));
+		buf[i] += (short int)(1000 * sin((2 * (3.0/2.0) * M_PI * 440.0 * i) / sample_rate));
 	}
 
 	// write to file
-	FILE* fp = fopen("test.wav", "wb");
+	FILE* fp = fopen("pchordtest.wav", "wb");
 	fwrite(&wh, 1, sizeof(wh), fp);
 	fwrite(buf, 2, buf_size, fp);
 	fclose(fp);
