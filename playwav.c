@@ -11,8 +11,10 @@ struct wav_header {
 	char riff[4];
 	int32_t riff_chunk_size;  // rcs = fisize - 8 (4 = RIFF, 4 = rcs)
 	char wave[4];
+	// after wave[4], chunks are in undetermined order
 	char fmt[4];
-	int32_t chunk_size;
+	// not always 16bytes, only if PCM (which should be fine, since MOST wavs are PCM...)
+	int32_t chunk_size;  // size of fmt chunk
 	int16_t format_tag;
 	int16_t num_channels;
 	int32_t sample_rate;
@@ -20,7 +22,7 @@ struct wav_header {
 	int16_t bytes_sample;
 	int16_t bits_sample;
 	char data[4];
-	int32_t data_len;
+	int32_t data_len;  // size of data chunk
 };
 */
 
@@ -31,17 +33,19 @@ int main() {
 	fread(buf, sizeof(buf), 1, fp);
 
 	// populate wav & header struct?
+	// only basic functionality (check createwav.c) for now. that is, assume we are parsing a file exactly like what createwav.c makes
 	// struct wavheader wh;
 	
 	char riff[5];  // extra byte for null terminator, not sure how this will work for populating wh
 	memcpy(riff, &buf[0], 4 * sizeof(buf[0]));
 	
 	int32_t rcs = 0;
-	memcpy(&rcs, &buf[4], sizeof(fsize));
-	printf("%d\n", rcs);
+	memcpy(&rcs, &buf[4], sizeof(rcs));
 	// see comment inside wav_header
 
-	
+	char wave[5];  // extra byte for null terminator, not sure how this will work for populating wh
+	memcpy(wave, &buf[8], 4 * sizeof(buf[0]));
+
 	// validation, may need to come at beginning of func to prevent buffer under/overflow errors...
 	/*
 	if() {
