@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <SDL2/audio.h>
 
 int main(int argc, char** argv) {
 	SDL_Init(SDL_INIT_AUDIO);

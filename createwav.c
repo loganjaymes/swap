@@ -3,6 +3,22 @@
 #include "math.h"
 #include "stdint.h"
 
+// define notes
+// to change octave, either div or mult by a factor of 2 (*2 => octave above, /2 => octave below)
+#define C4 261.63
+#define Db4 277.18
+#define D4 293.66
+#define Eb4 411.13
+#define E4 329.63
+#define F4 349.23
+#define Gb4 369.99
+#define G4 392.0
+#define Ab4 415.30
+#define A4 440.0
+#define Bb4 466.16
+#define B4 493.88
+
+
 // create wav header: https://docs.fileformat.com/audio/wav/ 
 struct wav_header {
 	char riff[4];
@@ -48,8 +64,8 @@ int main() {
 	short int buf[buf_size] = {};
 
 	for (int i = 0; i < buf_size; ++i) {
-		buf[i] += (short int)(1000 * sin((M_PI * 440.0 * i) / sample_rate));
-		buf[i] += (short int)(1000 * sin(((3.0/2.0) * M_PI * 440.0 * i) / sample_rate));
+		buf[i] += (short int)(1000 * sin((M_PI * A3 * i) / sample_rate));
+		buf[i] += (short int)(1000 * sin((M_PI * E3 * i) / sample_rate));
 	}
 
 	// write to file
