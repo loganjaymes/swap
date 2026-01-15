@@ -32,19 +32,35 @@ int main() {
 	FILE* fp = fopen("test.wav", "rb");
 	fread(buf, sizeof(buf), 1, fp);
 
-	// populate wav & header struct?
-	// only basic functionality (check createwav.c) for now. that is, assume we are parsing a file exactly like what createwav.c makes
 	// struct wavheader wh;
 	
 	char riff[5];  // extra byte for null terminator, not sure how this will work for populating wh
 	memcpy(riff, &buf[0], 4 * sizeof(buf[0]));
 	
-	int32_t rcs = 0;
-	memcpy(&rcs, &buf[4], sizeof(rcs));
+	int32_t r_cs = 0;
+	memcpy(&r_cs, &buf[4], sizeof(r_cs));
 	// see comment inside wav_header
 
-	char wave[5];  // extra byte for null terminator, not sure how this will work for populating wh
+	char wave[5]; 
 	memcpy(wave, &buf[8], 4 * sizeof(buf[0]));
+
+	/* IMPORTANT! PAST ABOVE POINT CHUNKS MAY NOT ALWAYS BE IN THIS ORDER, BUT BECAUSE BASING OFF OF createwav.c DOING IT TJIS WAY SHOULD NOT RESULT IN UNDEFINED BHV */
+
+	char fmt[5];
+	memcpy(fmt, &buf[12], 4 * sizeof(buf[0]));
+
+	int32_t fmt_cs = 0;
+	memcpy(&fmt_cs, &buf[16], 4 * sizeof(buf[0]));
+
+	int16_t fmt_type = 0;
+	memcpy(&fmt_type, &buf[20], 2 * sizeof(buf[0]));
+
+	// parse data
+
+
+
+
+
 
 	// validation, may need to come at beginning of func to prevent buffer under/overflow errors...
 	/*
