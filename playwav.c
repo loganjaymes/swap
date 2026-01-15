@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 /*
 struct wav_header {
 	char riff[4];
-	int32_t file_size;
+	int32_t riff_chunk_size;  // rcs = fisize - 8 (4 = RIFF, 4 = rcs)
 	char wave[4];
 	char fmt[4];
 	int32_t chunk_size;
@@ -21,18 +22,28 @@ struct wav_header {
 
 int main() {
 	// open wav & read
-	unsigned char buf[44];  // header is 44 bytes
+	char buf[44];  // header is 44 bytes
 	FILE* fp = fopen("test.wav", "rb");
 	fread(buf, sizeof(buf), 1, fp);
 
-	for(int i = 0; i < 44; ++i) {
-		printf("%x ", buf[i]);
+	// populate wav & header struct?
+	// struct wavheader wh;
+	
+	char riff[5];  // extra byte for null terminator, not sure how this will work for populating wh
+	memcpy(riff, &buf[0], 4 * sizeof(buf[0]));
+	
+	int32_t rcs = 0;
+	memcpy(&rcs, &buf[4], sizeof(fsize));
+	printf("%d\n", rcs);
+	// see comment inside wav_header
+
+	
+	// validation, may need to come at beginning of func to prevent buffer under/overflow errors...
+	/*
+	if() {
+		stderr("RIFF header is invalid");
 	}
-	printf("\n");
-
-	// validate RIFF and WAVE
-	// 
-
+	*/
 
 	return 0;
 }
