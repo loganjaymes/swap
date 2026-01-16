@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <alsa/asoundlib.h>
 
 // keeping it simple (for now), only try and play WAVs made with the createwav.c file, since other chunks can exist (ie. metadata chunks). 
 // once done w/ basic implementation, parse chunnks via strcmp and go from there (fe. if chunk_id == "fmt " => parse fmt chunk
@@ -80,7 +81,6 @@ int main() {
 	strncpy(wh.wave, wave, 4);
 	strncpy(wh.fmt, fmt, 4);
 	strncpy(wh.data, data, 4);
-
 	wh.riff_chunk_size = r_cs;
 	wh.format_tag = fmt_type;
 	wh.num_channels = num_channels;
@@ -88,10 +88,14 @@ int main() {
 	wh.bits_sample = bits_sample;
 	wh.bytes_sample = bytes_sample; 
 	wh.bytes_sec = bytes_sec;
-	wh.data_len = data_len;
 	
+	// use alsa
+	int rc = 0;
+	snd_pcm_t* playback_handle;
+	snd_pcm_hw_params_t* hw_params;
 
-
+	// default sound device == 0,0
+	rc = snd_pcm_open(&playback_handle, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, 0);
 
 
 
