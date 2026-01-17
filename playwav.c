@@ -89,20 +89,28 @@ int main() {
 	wh.bits_sample = bits_sample;
 	wh.bytes_sample = bytes_sample; 
 	wh.bytes_sec = bytes_sec;
+	wh.data_len = data_len;
 	
 	// use alsa
 	// TODO: Error handling
-	int rc = 0;
+	int size = 0;
 	snd_pcm_t* playback_handle;
+	snd_pcm_stream_t* stream = SND_PCM_STREAM_PLAYBACK;
 	snd_pcm_hw_params_t* hw_params;
+	unsigned int val = 0;
+	snd_pcm_uframes_t frame;
+	char* buff;
 
 	// default sound device == 0,0
-	rc = snd_pcm_open(&playback_handle, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, 0);
-	if (rc < 0) {
+	int device = 0;
+	device = snd_pcm_open(&playback_handle, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, 0);
+	if (device < 0) {
 		fprintf(stderr, "Could not open default audio device");
 		return 1;
 		// note if i move this to another file use exit to immediately kill program lel
 	}
+
+	
 
 	// validation, may need to come at beginning of func to prevent buffer under/overflow errors...
 	/*
