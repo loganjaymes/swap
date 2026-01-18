@@ -14,7 +14,7 @@ struct wav_header {
 	// after wave[4], chunks are in undetermined order
 	char fmt[4];
 	// not always 16bytes, only if PCM (which should be fine, since MOST wavs are PCM...)
-	int32_t chunk_size;  // size of fmt chunk
+	int32_t fmt_chunk_size;  // size of fmt chunk
 	int16_t format_tag;
 	int16_t num_channels;
 	int32_t sample_rate;
@@ -57,7 +57,7 @@ int main() {
 	memcpy(&num_channels , &buf[22], sizeof(num_channels));
 	
 	int32_t sample_rate = 0;
-	memcpy(&fmt_cs, &buf[24], sizeof(sample_rate));
+	memcpy(&sample_rate, &buf[24], sizeof(sample_rate));
 
 	// may differ based on wav spec..
 	int32_t bytes_sec = 0;
@@ -95,29 +95,32 @@ int main() {
 	// TODO: Error handling
 	int size = 0;
 	snd_pcm_t* playback_handle;
-	snd_pcm_stream_t* stream = SND_PCM_STREAM_PLAYBACK;
+	snd_pcm_stream_t stream = SND_PCM_STREAM_PLAYBACK;
 	snd_pcm_hw_params_t* hw_params;
 	unsigned int val = 0;
 	snd_pcm_uframes_t frame;
 	char* buff;
+	snd_pcm_hw_params_malloc(&hw_params);
 
 	// default sound device == 0,0
-	int device = 0;
-	device = snd_pcm_open(&playback_handle, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, 0);
-	if (device < 0) {
-		fprintf(stderr, "Could not open default audio device");
-		return 1;
-		// note if i move this to another file use exit to immediately kill program lel
+	// TODO: replace "plughw:0,0" w/ char* pcm_name; (using default is simplest for now tho...
+	if (snd_pcm_open(&playback_handle, "plughw:0,0", stream, 0) < 0) {
+		fprintf(stderr, "Could not open default audio device\n");
+		return -1;
+		// note if i move this to another file use EXIT and not return to immediately kill program lel
 	}
 
+	if (snd_pcm_hw_params_any(playback_handle, hw_params) < 0) {
+		fprintf(stderr, "Could not configure hardware\n");
+		return -1;
+	}
+
+	// may need to set formats, but at least half should be from the wh struct (fe. samplerate, pd, etc.). if that doesnt work its fine since ALSA should be able to convert sample rate
 	
 
-	// validation, may need to come at beginning of func to prevent buffer under/overflow errors...
-	/*
-	if() {
-		stderr("RIFF header is invalid");
-	}
-	*/
 
+	// TODO: validate wav file (ie. RIFF format)
+	// TODO: validate alsa device
+	snd_pcm_hw_params_free(hw_params);
 	return 0;
 }
