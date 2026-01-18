@@ -63,7 +63,7 @@ int main() {
 	wh.file_size = wh.data_len + 36;
 
 	// write notes to wav
-	short int buf[buf_size] = {};
+	short int buf[buf_size];
 
 	for (int i = 0; i < buf_size; ++i) {
 		buf[i] += (short int)(3000 * sin((2 * PI * F4 * i) / sample_rate));
