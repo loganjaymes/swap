@@ -119,20 +119,49 @@ int main() {
 		return -1;
 	}
 
-#if 0
 	// https://vovkos.github.io/doxyrest/samples/alsa/group_PCM.html#doxid-group-p-c-m-1ga45d50841b307f2156fce1857bfac228c 
-	// configuring hw to run wave file not hw to defualt sheen
+	// configuring hw to run wave file
 	int pd = 2;
 	snd_pcm_uframes_t pd_size = 8192;
-	unsigned int latency = pd_size * pd / (sample_rate * bytes_sample); 
-	snd_pcm_set_params(playback_handle, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_NONINTERLEAVED, num_channels, sample_rate, 1, latency); 
+	int16_t frames_size = num_channels * bytes_sample;  // alsa reads in frames (segments of wav), not samples or bytes
+	
+	//unsigned int latency = pd_size * pd / (sample_rate * bytes_sample); 
+	unsigned int latency = 500000;
 
-	unsigned int num_frames = data_len / (sample_rate * bytes_sample);
-	snd_pcm_sframes_t snd_pcm_writen(playback_handle, data_info, num_frames);
+	snd_pcm_set_params(playback_handle, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, num_channels, sample_rate, 1, latency); 
+
+	unsigned int num_frames = data_len / frames_size;
+	// start playback
+	// snd_pcm_sframes_t snd_pcm_writei(playback_handle, data_info, num_frames);
+
+	short int* d_ptr = data_info;
+	snd_pcm_sframes_t frames_left = data_len / frames_size;
+	
+	assert(data != NULL);
+	assert(data_len > 0);
+
+	while (frames_left > 0) {
+		snd_pcm_sframes_t written = snd_pcm_writei(playback_handle, d_ptr, frames_left);
+
+		if (written == -EPIPE) {
+			snd_pcm_prepare(playback_handle);  // underrun
+			continue;
+		} 
+		if (written < 0) {
+			fprintf(stderr, "write error: %s\n", snd_strerror(written));
+			break;
+		}
+
+		d_ptr += written * frames_size;
+		frames_left -= written;
+	}
 
 
+	snd_pcm_drain(playback_handle);
 
+	
 
+#if 0
 	snd_pcm_hw_params_set_format(playback_handle, hw_params, SND_PCM_FORMAT_S32_LE);  // checked w/ pw-top 
 	snd_pcm_hw_params_set_access(playback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
 	snd_pcm_hw_params_set_channels(playback_handle, hw_params, num_channels);
