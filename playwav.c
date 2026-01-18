@@ -75,13 +75,16 @@ int main() {
 	int32_t data_len = 0;  // size of data chunk
 	memcpy(&data_len, &buf[40], sizeof(data_len));
 
+
 	unsigned char* data_buf = malloc(data_len);  // new buffer since header buffer is 44 bytes (cuz its the header duh)
+												 
 	if (fread(data_buf, 1, data_len, fp) != data_len) {
 		fprintf(stderr, "Failde to read data");
 		free(data_buf);
 		fclose(fp);
 		return -1;
 	}
+
 	fclose(fp);
 
 	struct wav_header wh;
@@ -123,7 +126,6 @@ int main() {
 		return -1;
 	}
 
-	// https://vovkos.github.io/doxyrest/samples/alsa/group_PCM.html#doxid-group-p-c-m-1ga45d50841b307f2156fce1857bfac228c 
 	// configuring hw to run wave file
 	int pd = 2;
 	snd_pcm_uframes_t pd_size = 8192;
